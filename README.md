@@ -1,220 +1,181 @@
-Real-Time Task Board System (FastAPI + React Native)
+# Real-Time Task Board System
+FastAPI (Python) • React Native • Redis Streams • PostgreSQL
 
-A real-time collaborative task/board management system with two parallel implementations:
+A real-time collaborative task and board management system supporting two architectures:
 
-Quick-Win Version – In-memory, simple, no authentication
+- **Quick-Win**: Lightweight, in-memory, no authentication  
+- **State-of-the-Art**: Production-ready, scalable, with JWT authentication, Redis Streams, PostgreSQL persistence
 
-State-of-the-Art Version – Production-grade using PostgreSQL, Redis Streams, WebSockets, JWT
 
-Both versions can run independently under separate API routes.
+## Table of Contents
+1. Overview  
+2. Architecture  
+3. Backend Layers  
+4. Frontend Integration  
+5. Quick-Win Architecture  
+6. State-of-the-Art Architecture  
+7. Advantages  
+8. Example JSON  
+9. How to Run  
+10. Final Notes  
 
-Table of Contents
 
-Project Overview
+# Overview
+This project provides a real-time Kanban-style task board.  
+The backend is built with **FastAPI**, **Redis**, and **PostgreSQL**, while the frontend uses **React Native**.
 
-Architecture
+Two implementations exist:
 
-Models Layer
+| Version | Purpose |
+|--------|---------|
+| Quick-Win | Simple & fast prototype using in-memory storage |
+| State-of-the-Art | Full scalable production system with streaming, JWT, monitoring |
 
-Repository Layer
 
-Data Layer
 
-Utilities Layer
+# Architecture
+The backend is structured cleanly in multiple layers:
 
-Controllers
+- **Models Layer** – Domain and Pydantic models  
+- **Repository Layer** – Business logic and interactions  
+- **Data Layer** – Redis, PostgreSQL, and memory-based Quick-Win mode  
+- **Utilities** – WebSocket manager, JWT tools, settings loader  
+- **Controllers (Routes)** – REST API endpoints for both architecture versions  
 
-Backend / Frontend Interaction
 
-Quick-Win Architecture
+## Models Layer
+Includes the following domain entities:
 
-Features
+- User  
+- Board  
+- Task  
 
-Example Quick-Win Board JSON
+Also includes `Py_Models/` (Pydantic models) used for validation and serialization.
 
-State-of-the-Art Architecture
 
-Authentication Workflow
+## Repository Layer
+Responsible for implementing operations such as:
 
-Redis + WebSocket Core
+- Creating boards  
+- Adding or updating tasks  
+- User operations (login, token creation, validation)  
 
-Advantages
 
-How to Run
+## Data Layer
 
-Final Notes
+### DB_Context  
+Manages PostgreSQL connections and persistent queries.
 
-Project Overview
+### Quick_Win  
+An in-memory implementation that stores all data without databases.
 
-This project is built using:
+### Redis_DB  
+Handles:
+- Redis JSON storage  
+- Redis Streams event bus  
+- Real-time updates over WebSocket  
 
-FastAPI (Python) for the backend
 
-React Native for the frontend
+## Utilities
+Includes support tools:
 
-Redis Streams for real-time event processing
+- JWT token creation & validation  
+- WebSocket connection manager  
+- `.env` configuration system  
+- TokenChecker for request authentication  
 
-PostgreSQL for data persistence in the State-of-the-Art implementation
 
-Pydantic for model validation and serialization
+## Controllers
+There are two levels of routing:
 
-The system provides real-time task updates, event logging, authentication, and scalable architecture.
+- **Public routes** (login, register)  
+- **Protected routes** for Quick-Win and State-of-the-Art  
+  - `Quick_Win_Boards_Route`  
+  - `State_Of_Art_Boards_Route`  
 
-Architecture
 
-The backend follows a multi-layer design.
+# Frontend Integration
+The frontend communicates using REST API + WebSocket.
 
-Models Layer
+- API endpoints are stored in `Utilities/Request.js`  
+- React Native uses `useState` and `useEffect`  
+- CORS configured for local development  
 
-Contains business entities such as:
+Core UI components:
+- Login  
+- Boards  
+- Tasks  
+- Real-time messages  
 
-Users
 
-Boards
+# Quick-Win Architecture
+A simple, rapid prototype with:
 
-Tasks
+- No authentication  
+- All boards & tasks stored in memory  
+- Pydantic models for validation  
+- WebSocket for instant board updates  
+- No persistence (data resets when server restarts)  
 
-Relationships
 
-Each user owns one or more boards
+## Quick-Win Features
+- Very fast development  
+- Real-time task updates  
+- No database dependency  
+- Minimal configuration required  
 
-Each board contains multiple tasks
 
-Tasks are created/updated by users
+# State-of-the-Art Architecture
+A full production-level architecture.
 
-Py_Models
+## Authentication Flow
+1. User registers  
+2. Server generates a JWT containing username + user_id  
+3. Token valid for **1 month**  
+4. Token stored in browser cookies  
+5. Every request automatically includes the cookie  
+6. `TokenChecker.py` validates the token  
+7. Invalid/expired token → return **401**, clear cookie, redirect to login  
+8. JWT secrets stored in `.jwt.env`  
 
-Located in the Py_Models folder, used for:
 
-Input validation
+## Redis + WebSocket Core
+Redis Streams function as the **event bus**:
 
-JSON serialization
+- Every Add/Update/Delete on a task creates an event  
+- Events are sent instantly to all connected WebSocket clients  
+- All events are stored and retrievable as history  
 
-Communication with the frontend
 
-Compatibility with FastAPI
+# Advantages
 
-These classes inherit from Pydantic.
+## 1. Board Isolation via Redis Streams
+Each board has its own stream → isolated events & consumer groups.
 
-Repository Layer
+## 2. Event-Driven Architecture
+Allows:
+- Monitoring  
+- Logging  
+- Analytics  
+- Real-time dashboards  
 
-Encapsulates data-handling logic:
+## 3. Hybrid Storage (Redis + PostgreSQL)
+- Redis = Fast caching + streaming  
+- PostgreSQL = Durability & long-term persistence  
 
-Boards_Rep → board creation, updates, queries
+## 4. Horizontal Scaling
+Redis supports unlimited backend instances.
 
-Users_Rep → registration, login, authentication
+## 5. Real-Time Monitoring
+Admin can track every action immediately.
 
-This layer isolates business logic from storage details.
+## 6. Dynamic Task Structure
+Using Redis ReJSON + PostgreSQL flexible fields.
 
-Data Layer
 
-Consists of three main modules:
+# Example JSON (Quick-Win)
 
-DB_Context
-
-Handles PostgreSQL connections and transactions.
-
-Quick_Win
-
-Stores all data in memory for rapid testing.
-No persistence is used.
-Clears on server restart.
-
-Redis_DB
-
-Used in the State-of-the-Art version for:
-
-Fast caching
-
-Task storage
-
-Event handling
-
-Redis Streams for real-time updates
-
-Utilities Layer
-
-Contains:
-
-WebSocket classes for real-time broadcasting
-
-JWT helper functions
-
-Pydantic-based configuration loader
-
-Environment variable readers for Redis/PostgreSQL/JWT
-
-Configuration values are securely stored in:
-
-.env
-
-.db.env
-
-.jwt.env
-
-Controllers
-
-Two groups of controllers:
-
-Public Controllers
-
-Registration
-
-Authentication
-
-Token issuance
-
-Protected Controllers
-
-Require JWT validation:
-
-Quick_Win_Boards_Route
-
-State_Of_Art_Boards_Route
-
-This setup allows running two independent implementations in parallel.
-
-Backend / Frontend Interaction
-
-All APIs use REST
-
-CORS enables communication with the React Native app
-
-Frontend requests use fetch()
-
-URLs stored in Request.js
-
-UI states controlled using useState and useEffect
-
-Frontend modules include:
-
-Login
-
-Request Manager
-
-Boards
-
-Tasks
-
-Messages (WebSocket-based)
-
-Quick-Win Architecture
-
-A simple, fast implementation suitable for demos and rapid development.
-
-Quick-Win Features
-
-Data stored entirely in memory
-
-No authentication
-
-Pydantic used for tasks
-
-Real-time broadcast of updates using WebSockets
-
-Server restart resets all data
-
-Example Quick-Win Board JSON
+```json
 {
   "boards": [
     {
@@ -246,128 +207,3 @@ Example Quick-Win Board JSON
     }
   ]
 }
-
-State-of-the-Art Architecture
-
-A scalable and production-ready version using Redis Streams and PostgreSQL.
-
-Authentication Workflow
-
-User registers.
-
-A JWT token (containing username + ID) is generated.
-
-Token expiration: 1 month.
-
-Token stored automatically in browser cookies.
-
-Every request includes the token.
-
-TokenChecker.py validates token:
-
-Expired → return 401, clear cookie, redirect to login
-
-Invalid → same as above
-
-Secret keys stored in .jwt.env.
-
-Redis + WebSocket Core
-
-Redis Streams handle:
-
-Real-time synchronization
-
-Event logging
-
-Per-board streams
-
-Broadcasting updates to active clients
-
-Every task mutation generates a new Stream event.
-
-Advantages
-1. Board Isolation
-
-Each board uses a separate Redis Stream.
-Access can be restricted via tokens.
-
-2. Event-Driven Architecture
-
-Every action is logged as a discrete event for monitoring, scalability, and analytics.
-
-3. Hybrid Storage
-
-Redis for speed
-PostgreSQL for persistence
-Ensures sustainability across restarts.
-
-4. Horizontal Scaling
-
-Redis consumer groups enable multi-server deployments (Docker/Kubernetes).
-
-5. Real-Time Monitoring
-
-User actions can be visualized or stored for analysis.
-
-6. Dynamic Task Fields
-
-Both Redis and PostgreSQL support flexible schemas.
-
-How to Run
-1. Run the startup script
-./Run.sh
-
-
-This script launches:
-
-FastAPI backend
-
-React Native frontend
-
-2. Configure Environment Variables
-
-Before running, ensure:
-
-.db.env
-
-Contains PostgreSQL:
-
-Username
-
-Password
-
-Host
-
-Port
-
-Database
-
-.env
-
-Contains Redis:
-
-Host
-
-Port
-
-Password (optional)
-
-.jwt.env
-
-Contains:
-
-JWT secret key
-
-Hashing algorithm
-
-Final Notes
-
-Quick-Win → ideal for prototypes
-
-State-of-the-Art → ideal for production
-
-Built for real-time collaboration
-
-Uses Redis Streams for ultra-fast updates
-
-Both implementations run in parallel
