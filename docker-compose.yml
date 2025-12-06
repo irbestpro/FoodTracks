@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      target: backend
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./BackEnd:/app/BackEnd
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build:
+      context: .
+      target: frontend
+    container_name: frontend
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    volumes:
+      - ./FrontEnd/fe:/app/fe
+
