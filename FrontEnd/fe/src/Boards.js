@@ -77,8 +77,6 @@ export function Boards(){
                 data : initial_data
             }   
 
-            alert(JSON.stringify(obj))
-
             await post_Requests("api/Boards/Tasks/Add" , obj , token.token); // add new task to specific board
         }
 

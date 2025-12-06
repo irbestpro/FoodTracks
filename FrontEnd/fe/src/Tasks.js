@@ -258,7 +258,7 @@ export function Tasks(props){
             </div>
 
             <div className='footer'>
-                <div class="username">{filteretasks.length} Tasks are Available</div>
+                <div class="username">{filteretasks.length - 1} Tasks are Available</div>
                 <button class="logout-btn" onClick={props.close_handler}>Close &times;</button>
             </div>
 
