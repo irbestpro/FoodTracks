@@ -121,8 +121,8 @@ The Quick Win perspective uses a fully in-memory architecture built on Python di
 
 ## How to Run
 1. Run startup script:
-```bash
+bash
 ./Run.sh
 
 2. Run docker-compose.yml file:
-```docker-compose up --build
+docker-compose up --build
