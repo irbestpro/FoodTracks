@@ -1,0 +1,10 @@
+uvicorn
+uvicorn[standard]
+fastapi
+pydantic-settings
+pydantic
+redis[asyncio]
+strawberry-graphql
+alembic
+PyJWT
+SQLAlchemy
