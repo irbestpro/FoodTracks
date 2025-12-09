@@ -96,7 +96,7 @@ The Quick Win perspective uses a fully in-memory architecture built on Python di
 ## State-of-the-Art Architecture
 
 ### Authentication
-- Users register and login to get a **JWT token** (Save Refresh token).  
+- Users register and login to get a **JWT token** (Please note that for completing the evaluation process, only the Access Token is stored and sent to the server. In my commercial projects, I store a Refresh Token in an HTTPOnly cookie on the client side, which is used to refresh the Access Token whenever needed. Here, only the password encryption process, the use of a JWT token, and the provided validation mechanism are implemented in order to protect the generated boards).  
 - Tokens stored securely in browser cookies.  
 - Middleware (`TokenChecker.py`) validates tokens per each request.  
 - Invalid/expired tokens return `401 Unauthorized`.  
