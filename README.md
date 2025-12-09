@@ -96,7 +96,7 @@ The Quick Win perspective uses a fully in-memory architecture built on Python di
 ## State-of-the-Art Architecture
 
 ### Authentication
-- Users register and login to get a **JWT token** (Save Access token).  
+- Users register and login to get a **JWT token** (Save Refresh token).  
 - Tokens stored securely in browser cookies.  
 - Middleware (`TokenChecker.py`) validates tokens per each request.  
 - Invalid/expired tokens return `401 Unauthorized`.  
